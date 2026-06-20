@@ -546,6 +546,11 @@ ${jsonData}
     }, 100);
     this.g = document.createElementNS("http://www.w3.org/2000/svg", "g");
     this.svg.appendChild(this.g);
+    this.textMeasureEl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    this.textMeasureEl.classList.add("mindmap-node-text");
+    this.textMeasureEl.setAttribute("visibility", "hidden");
+    this.textMeasureEl.setAttribute("aria-hidden", "true");
+    this.svg.appendChild(this.textMeasureEl);
     this.boundWindowKeyDown = (e) => {
       if (this.app.workspace.getActiveViewOfType(_MindMapView) !== this)
         return;
@@ -1877,14 +1882,8 @@ ${jsonData}
     const displayText = text.length > maxLength
       ? text.substring(0, maxLength) + "..."
       : text;
-    const tempText = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    tempText.classList.add("mindmap-node-text");
-    tempText.setAttribute("visibility", "hidden");
-    tempText.textContent = displayText;
-    this.svg.appendChild(tempText);
-    const textWidth = tempText.getComputedTextLength();
-    this.svg.removeChild(tempText);
-    return Math.max(120, Math.ceil(textWidth) + padding);
+    this.textMeasureEl.textContent = displayText;
+    return Math.max(120, Math.ceil(this.textMeasureEl.getComputedTextLength()) + padding);
   }
   renderNode(node) {
     const nodeG = document.createElementNS("http://www.w3.org/2000/svg", "g");

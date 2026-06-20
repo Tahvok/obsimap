@@ -497,6 +497,7 @@ class MindMapView extends TextFileView {
     private viewportResizeRaf: number | null = null;
     private svgContainerEl: HTMLElement | null = null;
     private boundWindowKeyDown: ((e: KeyboardEvent) => void) | null = null;
+    private textMeasureEl: SVGTextElement | null = null;
     private static readonly LONG_PRESS_MS = 500;
     private static readonly LONG_PRESS_MOVE_THRESHOLD = 10;
     private static readonly NODE_HEIGHT = 40;
@@ -627,6 +628,12 @@ class MindMapView extends TextFileView {
 
         this.g = document.createElementNS("http://www.w3.org/2000/svg", "g");
         this.svg.appendChild(this.g);
+
+        this.textMeasureEl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        this.textMeasureEl.classList.add("mindmap-node-text");
+        this.textMeasureEl.setAttribute("visibility", "hidden");
+        this.textMeasureEl.setAttribute("aria-hidden", "true");
+        this.svg.appendChild(this.textMeasureEl);
 
         this.boundWindowKeyDown = (e: KeyboardEvent) => {
             if (this.app.workspace.getActiveViewOfType(MindMapView) !== this) return;
@@ -2083,16 +2090,8 @@ class MindMapView extends TextFileView {
             ? text.substring(0, maxLength) + "..."
             : text;
 
-        // Measure the actual rendered text width instead of estimating with charWidth
-        const tempText = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        tempText.classList.add("mindmap-node-text");
-        tempText.setAttribute("visibility", "hidden");
-        tempText.textContent = displayText;
-        this.svg.appendChild(tempText);
-        const textWidth = tempText.getComputedTextLength();
-        this.svg.removeChild(tempText);
-
-        return Math.max(120, Math.ceil(textWidth) + padding);
+        this.textMeasureEl!.textContent = displayText;
+        return Math.max(120, Math.ceil(this.textMeasureEl!.getComputedTextLength()) + padding);
     }
 
     renderNode(node: MindMapNode) {
