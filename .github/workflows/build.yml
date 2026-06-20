@@ -1,4 +1,4 @@
-name: Build and Release
+name: Build
 
 on:
   push:
@@ -8,9 +8,6 @@ on:
   pull_request:
     branches:
       - main
-
-permissions:
-  contents: write
 
 jobs:
   build:
@@ -39,26 +36,3 @@ jobs:
             styles.css
             manifest.json
           retention-days: 7
-
-  release:
-    needs: build
-    if: startsWith(github.ref, 'refs/heads/fix/')
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: obsimap-build
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          draft: true
-          prerelease: true
-          files: |
-            main.js
-            styles.css
-            manifest.json
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
