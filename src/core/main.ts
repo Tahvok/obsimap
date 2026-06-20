@@ -2077,15 +2077,22 @@ class MindMapView extends TextFileView {
 
     getNodeWidth(text: string): number {
         const maxLength = this.settings.maxNodeLength;
-        const baseWidth = 40;
-        const charWidth = 10;
-        let displayLength: number;
-        if (text.length > maxLength) {
-            displayLength = Math.min(text.length, maxLength + 3);
-        } else {
-            displayLength = text.length;
-        }
-        return Math.max(120, baseWidth + displayLength * charWidth);
+        const padding = 40;
+
+        const displayText = text.length > maxLength
+            ? text.substring(0, maxLength) + "..."
+            : text;
+
+        // Measure the actual rendered text width instead of estimating with charWidth
+        const tempText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        tempText.classList.add("mindmap-node-text");
+        tempText.setAttribute("visibility", "hidden");
+        tempText.textContent = displayText;
+        this.svg.appendChild(tempText);
+        const textWidth = tempText.getComputedTextLength();
+        this.svg.removeChild(tempText);
+
+        return Math.max(120, Math.ceil(textWidth) + padding);
     }
 
     renderNode(node: MindMapNode) {
