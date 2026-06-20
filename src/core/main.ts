@@ -2079,7 +2079,12 @@ class MindMapView extends TextFileView {
         const maxLength = this.settings.maxNodeLength;
         const baseWidth = 40;
         const charWidth = 10;
-        const displayLength = text.length > maxLength ? maxLength + 3 : text.length;
+        let displayLength: number;
+        if (text.length > maxLength) {
+            displayLength = Math.min(text.length, maxLength + 3);
+        } else {
+            displayLength = text.length;
+        }
         return Math.max(120, baseWidth + displayLength * charWidth);
     }
 
